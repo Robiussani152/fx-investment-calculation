@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
+    <title>Fx traning</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="row">
+                <div class="col-6 offset-3">
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Calculate</h5>
+                            <form>
+                                <div class="mb-3">
+                                    <label for="trade-amount" class="form-label">Trade Amount</label>
+                                    <input type="number" class="form-control" id="trade-amount" placeholder="Enter trade amount...." v-model="trade_start_amount">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="trade-percentage" class="form-label">Trade percentage</label>
+                                    <input type="number" class="form-control" id="trade-percentage" placeholder="Enter trade percentage...." v-model="trade_percentage">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="trade-number" class="form-label">Number of trader</label>
+                                    <input type="number" class="form-control" id="trade-number" placeholder="Enter trade number...." v-model="trade_number">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 offset-3 mt-3">
+                    <legend>Total trade count</legend>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Trade amount</th>
+                                <th scope="col">Target profit</th>
+                                <th scope="col">Previous Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(total_amount, index) in total_amounts" :key="index">
+                                <th scope="row">{{ total_amount.trade_sl }}</th>
+                                <td>{{ total_amount.trade_amount }}</td>
+                                <td>{{ total_amount.target_profit }}</td>
+                                <td>{{ total_amount.previous_loss }}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">Total amount required</td>
+                                <td>{{ total_amount_needed }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script>
+        var app = new Vue({
+                el: '#app',
+                data: {
+                    trade_start_amount: 1,
+                    trade_number: 10,
+                    trade_percentage: 87,
+                    total_amounts:[],
+                    total_amount_needed:0
+                },
+                methods:{
+                    calculateAmount(){
+                        let trade_start_amount = +this.trade_start_amount;
+                        let trade_amount = +this.trade_start_amount;
+                        let trade_number = +this.trade_number;
+                        let trade_percentage = +this.trade_percentage;
+
+                        let total_required_amount = 0;
+                        let previous_loss = 0;
+                        this.total_amounts = [];
+                        for(var i = 1; i <= trade_number; i++){
+                            previous_loss += trade_amount;
+                            trade_amount = previous_loss/(trade_percentage/100);
+
+                            let calculate_current_amount_percentage = this.calculatePercentage(trade_amount, trade_percentage); 
+                            this.total_amounts.push({
+                                trade_sl: i,
+                                trade_amount: trade_amount,
+                                target_profit: calculate_current_amount_percentage,
+                                previous_loss: previous_loss,
+                            });
+                            this.total_amount_needed = total_required_amount;
+                        }
+                    },
+                    calculatePercentage(tradeAmount, tradePercentage){
+                        return tradeAmount + (tradeAmount*tradePercentage)/100;
+                    }
+                },
+                watch:{
+                    trade_start_amount(newVal, oldVal){
+                        this.calculateAmount();
+                    },
+                    trade_number(newVal, oldVal){
+                        this.calculateAmount();
+                    },
+                    trade_percentage(newVal, oldVal){
+                        this.calculateAmount();
+                    }
+                },
+                mounted(){
+                    this.calculateAmount()
+                }
+            })
+    </script>
+</body>
+
+</html>
